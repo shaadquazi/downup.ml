@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "632544711559",
+    "firebase_url": "https://downupml.firebaseio.com",
+    "project_id": "downupml",
+    "storage_bucket": "downupml.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632544711559:android:230c0781601374ae",
+        "android_client_info": {
+          "package_name": "com.example.shaad.downupml"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632544711559-rk2s20057obgsonaptj15e64k1tb17o7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shaad.downupml",
+            "certificate_hash": "ead808d28d591078ff339490f92351b797133911"
+          }
+        },
+        {
+          "client_id": "632544711559-4o27m1nj2r78h9l3hinvvj3sitkul66a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-gv56vvNEBxS5JRHtA2xWbicbs3PdnE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632544711559-4o27m1nj2r78h9l3hinvvj3sitkul66a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

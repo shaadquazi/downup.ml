@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">downup.ml</string>
+    <string name="fileName_str">Enter File Name</string>
+    <string name="fname_str">File Name</string>
+    <string name="fsize_str">Size</string>
+    <string name="ftype_str">File Type</string>
+    <string name="choose_str">Choose File</string>
+    <string name="details_str">File Detailes</string>
+    <string name="upload_str">Upload File</string>
+    <string name="search_str">Search</string>
+    <string name="UploadToDownUp_str">Select File To Upload</string>
+    <string name="delete_str">Delete</string>
+    <string name="download_str">Download File</string>
+</resources>

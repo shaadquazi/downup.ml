@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical"
+    android:padding="12dp"
+    tools:context="com.example.shaad.downupml.UploadActivity">
+
+
+    <Button
+        android:id="@+id/choose"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="120dp"
+        android:text="@string/choose_str" />
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/fileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/choose"
+        android:hint="@string/fileName_str"
+        android:inputType="textPersonName"
+        android:textColor="@color/textclr"
+        android:textColorHint="@color/textclr"
+        android:textSize="24sp"
+        app:met_baseColor="@color/textclr"
+        app:met_floatingLabel="highlight"
+        app:met_primaryColor="@color/textclr"
+        app:met_singleLineEllipsis="true" />
+
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fileName"
+        android:text="@string/details_str"
+        android:textColor="@color/textclr" />
+
+    <Button
+        android:id="@+id/upload"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/details"
+        android:text="@string/upload_str" />
+
+
+</RelativeLayout>
