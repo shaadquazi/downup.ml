@@ -2,6 +2,7 @@ package com.example.shaad.downupml;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,10 +11,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.shaad.downupml.Model.DownUpFile;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -33,7 +34,6 @@ public class UploadActivity extends AppCompatActivity {
     Uri uri;
     StorageReference mDatabase;
     DatabaseReference mDatabaseRef;
-    ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +94,9 @@ public class UploadActivity extends AppCompatActivity {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
             } finally {
-                cursor.close();
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
         if (result == null) {
@@ -131,10 +133,15 @@ public class UploadActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 progressDialog.dismiss();
+
+
                 details = (TextView) findViewById(R.id.details);
-                details.setText("File Uploaded");
+                Resources res = getResources();
+                String upload_msg = res.getString(R.string.upload_msg);
+                details.setText(upload_msg);
                 fileName = (MaterialEditText) findViewById(R.id.fileName);
                 fileName.setText("");
+
                 @SuppressWarnings("VisibleForTests") String name = taskSnapshot.getMetadata().getName();
                 @SuppressWarnings("VisibleForTests") String type = taskSnapshot.getMetadata().getContentType();
                 @SuppressWarnings("VisibleForTests") long size = taskSnapshot.getMetadata().getSizeBytes();
@@ -158,16 +165,9 @@ public class UploadActivity extends AppCompatActivity {
     private void writeNewImageInfoToDB(String name, String type, long size, String download_url) {
 
         mDatabaseRef = FirebaseDatabase.getInstance().getReference();
-        DownUpFile down = new DownUpFile();
+        DownUpFile down = new DownUpFile(name, type, String.valueOf((float) size / 1000), download_url);
 
-        down.setmFileName(name);
-        down.setmFileType(type);
-        down.setmFileSize(String.valueOf((float) size / 1000));
-        down.setmFileDownload(download_url);
-
-
-        String key = mDatabaseRef.push().getKey();
-        mDatabaseRef.child(key).setValue(down);
+        mDatabaseRef.push().setValue(down);
 
     }
 

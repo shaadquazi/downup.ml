@@ -4,10 +4,12 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,12 +21,21 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.shaad.downupml.Model.DownUpFile;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -33,21 +44,19 @@ public class MainActivity extends AppCompatActivity {
     Button UploadToDownUp;
     MaterialEditText search;
     RecyclerView list;
-    FirebaseStorage fbStore;
+    FirebaseStorage mFirebaseStorage;
     DatabaseReference mDatabaseRef;
-
-
+    ImageButton refresh;
     private FirebaseRecyclerAdapter<DownUpFile, ViewHolder> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        fbStore = FirebaseStorage.getInstance();
-
+        mFirebaseStorage = FirebaseStorage.getInstance();
         mDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
+        refresh = (ImageButton) findViewById(R.id.refresh);
         list = (RecyclerView) findViewById(R.id.list);
         search = (MaterialEditText) findViewById(R.id.search);
         UploadToDownUp = (Button) findViewById(R.id.UploadToDownUp);
@@ -65,24 +74,62 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-
-                Toast.makeText(MainActivity.this, "" + s.toString(), Toast.LENGTH_SHORT).show();
-
+                filter(s.toString());
             }
         });
-        mAdapter = new FirebaseRecyclerAdapter<DownUpFile, ViewHolder>(DownUpFile.class, R.layout.each_row, ViewHolder.class, mDatabaseRef) {
 
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+
+        mAdapter = new FirebaseRecyclerAdapter<DownUpFile, ViewHolder>(DownUpFile.class, R.layout.each_row, ViewHolder.class, mDatabaseRef) {
             @Override
             protected void populateViewHolder(ViewHolder viewHolder, final DownUpFile model, int position) {
 
-                viewHolder.fname.setText(model.getmFileName());
-                viewHolder.ftype.setText(model.getmFileType());
-                viewHolder.fsize.setText(model.getmFileSize() + "Kb");
+
+                Resources res = getResources();
+                String size = String.format(res.getString(R.string.download_unit), model.getFileSize());
+
+                viewHolder.fname.setText(model.getFileName());
+                viewHolder.ftype.setText(model.getFileType());
+                viewHolder.fsize.setText(size);
                 viewHolder.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        Toast.makeText(MainActivity.this, "DELETE", Toast.LENGTH_SHORT).show();
+
+                        Query query = mDatabaseRef.orderByChild("fileName").equalTo(model.getFileName());
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot record : dataSnapshot.getChildren()) {
+                                    record.getRef().removeValue();
+                                }
+
+                                StorageReference file_ref = mFirebaseStorage.getReferenceFromUrl(model.getFileDownload());
+                                file_ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(MainActivity.this, "File Deleted", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                Toast.makeText(MainActivity.this, "Failed! Try Again.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
                     }
                 });
                 viewHolder.download.setOnClickListener(new View.OnClickListener() {
@@ -91,23 +138,26 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         haveStoragePermission();
 
+                        String ext = model.getFileType().substring(model.getFileType().lastIndexOf("/") + 1);
 
-                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(model.getmFileDownload()));
+                        switch (ext) {
+                            case "vnd.android.package-archive":
+                                ext = "apk";
+                                break;
+                            case "msword":
+                                ext = "doc";
+                                break;
+                        }
 
-                        request.setDescription(model.getmFileType());
-                        request.setTitle(model.getmFileName());
 
-
+                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(model.getFileDownload()));
+                        request.setDescription(model.getFileType());
+                        request.setTitle(model.getFileName());
                         request.allowScanningByMediaScanner();
                         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, model.getmFileName() + "." + model.getmFileType().substring(model.getmFileType().lastIndexOf("/") + 1));
-
-
+                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, model.getFileName() + "." + ext);
                         DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                         manager.enqueue(request);
-
-
                     }
                 });
 
@@ -120,17 +170,15 @@ public class MainActivity extends AppCompatActivity {
         list.setHasFixedSize(true);
         list.setAdapter(mAdapter);
 
-
         UploadToDownUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, UploadActivity.class);
                 startActivity(myIntent);
-
-
             }
         });
     }
+
 
     public boolean haveStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -143,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
-        } else { //you dont need to worry about these stuff below api level 23
+        } else {
             Log.e("Permission error", "You already have the permission");
             return true;
         }

@@ -6,7 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-class ViewHolder extends RecyclerView.ViewHolder {
+public class ViewHolder extends RecyclerView.ViewHolder {
     TextView fname, ftype, fsize;
     Button delete, download;
 

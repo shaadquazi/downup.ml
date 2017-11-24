@@ -7,28 +7,43 @@
     android:background="@color/colorPrimaryDark"
     tools:context="com.example.shaad.downupml.MainActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/UploadToDownUp"
         android:layout_margin="8dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="vertical">
 
         <com.rengwuxian.materialedittext.MaterialEditText
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:hint="@string/search_str"
             app:met_textColor="@color/textclr"
             app:met_textColorHint="@color/textclr" />
 
+        <ImageButton
+            android:id="@+id/refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@mipmap/ic_launcher_refresh"
+            android:contentDescription="@string/refresh_str" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/search" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <Button
